@@ -87,7 +87,7 @@ $gallery = [
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@300;400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
 <link rel="preload" as="image" type="image/webp" href="assets/img/hero-720.webp">
 <link rel="stylesheet" href="assets/css/style.css?v=<?= filemtime(__DIR__ . '/assets/css/style.css') ?>">
-<script>document.documentElement.classList.add('js');</script>
+<script>document.documentElement.classList.add('js', 'env-lock');</script>
 </head>
 <body>
 <a class="skip" href="#invitation">Aller au contenu</a>
@@ -100,35 +100,211 @@ $gallery = [
 </div>
 <div class="dust" id="dust" aria-hidden="true"></div>
 
-<!-- Rideau d'ouverture -->
-<div class="intro" id="intro" aria-hidden="true">
-  <div class="intro__ring"><span class="intro__mono"><?= e($monogram) ?></span></div>
-  <p class="intro__date"><?= e($dateShort) ?></p>
+<!-- Ouverture : l'enveloppe animée -->
+<div class="envelope-scene" id="envelope" role="dialog" aria-modal="true" aria-labelledby="env-title">
+  <div class="envelope-scene__silk" aria-hidden="true"></div>
+  <div class="envelope-scene__petals" id="env-petals" aria-hidden="true"></div>
+
+  <p class="envelope-scene__eyebrow" id="env-title">Une invitation pour vous</p>
+
+  <div class="env-wrap" id="env-wrap">
+    <button class="env" id="env-open" type="button" aria-label="Ouvrir l'invitation de <?= e($couple) ?>">
+      <!-- Dos de l'enveloppe et doublure dorée -->
+      <svg class="env__back" viewBox="0 0 600 400" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="envLiner" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#8A6A36"/><stop offset=".45" stop-color="#D9B878"/><stop offset=".7" stop-color="#A9824A"/><stop offset="1" stop-color="#E7CC93"/>
+          </linearGradient>
+          <pattern id="envLinerLines" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="rgba(60,40,10,.25)" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="600" height="400" rx="8" fill="#E8DECE"/>
+        <rect x="16" y="16" width="568" height="368" rx="4" fill="url(#envLiner)"/>
+        <rect x="16" y="16" width="568" height="368" rx="4" fill="url(#envLinerLines)"/>
+        <rect x="28" y="28" width="544" height="344" rx="3" fill="none" stroke="#FBF3E2" stroke-width="2.5" stroke-dasharray="0 7" stroke-linecap="round" opacity=".8"/>
+      </svg>
+
+      <!-- La carte glissée dans l'enveloppe -->
+      <div class="env__letter" aria-hidden="true">
+        <span class="env__letter-mono"><?= e($monogram) ?></span>
+        <span class="env__letter-eyebrow">Nous nous marions</span>
+        <span class="env__letter-names"><?= e($g['name']) ?> <em>&amp;</em> <?= e($b['name']) ?></span>
+        <span class="env__letter-date"><?= e($dateShort) ?></span>
+      </div>
+
+      <!-- Face avant : trois rabats en dentelle -->
+      <svg class="env__front" viewBox="0 0 600 400" aria-hidden="true" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="envSide" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#F1E8DA"/><stop offset="1" stop-color="#FBF7F0"/>
+          </linearGradient>
+          <linearGradient id="envBottom" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#EFE5D5"/><stop offset="1" stop-color="#FFFCF7"/>
+          </linearGradient>
+          <pattern id="envLace" width="22" height="22" patternUnits="userSpaceOnUse">
+            <circle cx="11" cy="11" r="3.2" fill="none" stroke="#D9C6A5" stroke-width=".7"/>
+            <circle cx="11" cy="11" r=".9" fill="#D9C6A5"/>
+            <circle cx="0" cy="0" r="1.4" fill="#E4D5BC"/><circle cx="22" cy="0" r="1.4" fill="#E4D5BC"/>
+            <circle cx="0" cy="22" r="1.4" fill="#E4D5BC"/><circle cx="22" cy="22" r="1.4" fill="#E4D5BC"/>
+          </pattern>
+        </defs>
+        <path class="env__flap-l" d="M0 4Q0 0 6 3L284 196Q300 208 284 220L6 397Q0 400 0 396Z" fill="url(#envSide)"/>
+        <path class="env__flap-r" d="M600 4Q600 0 594 3L316 196Q300 208 316 220L594 397Q600 400 600 396Z" fill="url(#envSide)"/>
+        <path d="M0 400L262 222Q300 196 338 222L600 400Z" fill="url(#envBottom)"/>
+        <g opacity=".55">
+          <path d="M0 4Q0 0 6 3L284 196Q300 208 284 220L6 397Q0 400 0 396Z" fill="url(#envLace)"/>
+          <path d="M600 4Q600 0 594 3L316 196Q300 208 316 220L594 397Q600 400 600 396Z" fill="url(#envLace)"/>
+          <path d="M0 400L262 222Q300 196 338 222L600 400Z" fill="url(#envLace)"/>
+        </g>
+        <g fill="none" stroke-linecap="round">
+          <path d="M18 30L262 205M18 370L262 222" stroke="#C8AD7E" stroke-width="2.4" stroke-dasharray="0 7"/>
+          <path d="M582 30L338 205M582 370L338 222" stroke="#C8AD7E" stroke-width="2.4" stroke-dasharray="0 7"/>
+          <path d="M40 392L270 236Q300 216 330 236L560 392" stroke="#C8AD7E" stroke-width="2.4" stroke-dasharray="0 7"/>
+          <path d="M0 400L262 222Q300 196 338 222L600 400" stroke="#B8945A" stroke-width="1.1" opacity=".7"/>
+          <!-- plume / filigrane gravé -->
+          <path class="env__filigree" d="M300 380C300 330 250 300 214 318M300 380C300 330 350 300 386 318M300 372C286 346 262 340 246 352M300 372C314 346 338 340 354 352M214 318c-14 7-12 26 4 24M386 318c14 7 12 26-4 24" stroke="#C9AE80" stroke-width="1.3" pathLength="1"/>
+        </g>
+      </svg>
+
+      <!-- Rabat supérieur : il pivote en 3D à l'ouverture -->
+      <div class="env__flap" aria-hidden="true">
+        <svg class="env__flap-face env__flap-face--out" viewBox="0 0 600 250" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="envFlap" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#FFFDF9"/><stop offset="1" stop-color="#F0E6D6"/>
+            </linearGradient>
+          </defs>
+          <path d="M0 0H600L322 232Q300 250 278 232Z" fill="url(#envFlap)"/>
+          <path d="M0 0H600L322 232Q300 250 278 232Z" fill="url(#envLace)" opacity=".5"/>
+          <path d="M24 10L282 220Q300 234 318 220L576 10" fill="none" stroke="#C8AD7E" stroke-width="2.4" stroke-dasharray="0 7" stroke-linecap="round"/>
+          <path d="M0 0L278 232Q300 250 322 232L600 0" fill="none" stroke="#B8945A" stroke-width="1.1" opacity=".75"/>
+        </svg>
+        <svg class="env__flap-face env__flap-face--in" viewBox="0 0 600 250" preserveAspectRatio="none">
+          <path d="M0 0H600L322 232Q300 250 278 232Z" fill="url(#envLiner)"/>
+          <path d="M0 0H600L322 232Q300 250 278 232Z" fill="url(#envLinerLines)"/>
+          <path d="M30 12L284 214Q300 226 316 214L570 12" fill="none" stroke="#FBF3E2" stroke-width="2.4" stroke-dasharray="0 7" stroke-linecap="round" opacity=".8"/>
+        </svg>
+      </div>
+
+      <!-- Sceau de cire dorée -->
+      <span class="env__seal" aria-hidden="true">
+        <svg viewBox="0 0 100 100">
+          <defs>
+            <radialGradient id="envSeal" cx=".38" cy=".32" r=".75">
+              <stop offset="0" stop-color="#FCE9B8"/><stop offset=".45" stop-color="#D2AE6C"/><stop offset="1" stop-color="#8E6A33"/>
+            </radialGradient>
+          </defs>
+          <path class="env__seal-half env__seal-half--l" d="M50 4C38 3 30 9 21 12 12 18 6 27 5 38 2 48 6 57 6 66 10 76 18 84 28 90 35 95 43 97 50 96Z" fill="url(#envSeal)"/>
+          <path class="env__seal-half env__seal-half--r" d="M50 4C62 3 70 8 79 13 88 19 95 28 95 39 98 49 94 58 95 67 90 77 82 85 72 90 65 95 57 97 50 96Z" fill="url(#envSeal)"/>
+          <circle cx="50" cy="50" r="31" fill="none" stroke="#8E6A33" stroke-width="1.2" opacity=".55"/>
+          <circle cx="50" cy="50" r="27" fill="none" stroke="#FFF1CC" stroke-width=".8" opacity=".6"/>
+          <text x="50" y="58" text-anchor="middle" class="env__seal-text"><?= e($monogram) ?></text>
+        </svg>
+      </span>
+    </button>
+
+    <!-- Rose posée sur l'enveloppe -->
+    <svg class="env-rose" viewBox="-110 -110 220 220" aria-hidden="true">
+      <defs>
+        <linearGradient id="rosePetal" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#C9AE84"/><stop offset=".38" stop-color="#EADCC5"/><stop offset="1" stop-color="#FFFDF9"/>
+        </linearGradient>
+        <path id="rosePetalShape" d="M0 0C-24-8-30-42-6-54Q0-57 6-54C30-42 24-8 0 0Z" fill="url(#rosePetal)" stroke="#CDB58E" stroke-width=".6"/>
+        <filter id="roseShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="#5A3E15" flood-opacity=".3"/></filter>
+      </defs>
+      <path class="env-rose__leaf" d="M-34 46C-64 52-92 80-104 108-74 106-44 86-34 46Z" fill="#56633F"/>
+      <path d="M-36 52C-58 70-80 88-100 104" fill="none" stroke="#7D8A62" stroke-width="1"/>
+      <path class="env-rose__leaf" d="M18 58C10 84 20 102 42 110 48 88 38 68 18 58Z" fill="#46532F"/>
+      <g class="env-rose__bloom">
+        <g filter="url(#roseShadow)">
+          <use href="#rosePetalShape" transform="rotate(0.0) translate(0 -3) scale(1.55)"/>
+          <use href="#rosePetalShape" transform="rotate(51.4) translate(0 -3) scale(1.55)"/>
+          <use href="#rosePetalShape" transform="rotate(102.9) translate(0 -3) scale(1.55)"/>
+          <use href="#rosePetalShape" transform="rotate(154.3) translate(0 -3) scale(1.55)"/>
+          <use href="#rosePetalShape" transform="rotate(205.7) translate(0 -3) scale(1.55)"/>
+          <use href="#rosePetalShape" transform="rotate(257.1) translate(0 -3) scale(1.55)"/>
+          <use href="#rosePetalShape" transform="rotate(308.6) translate(0 -3) scale(1.55)"/>
+        </g>
+        <g filter="url(#roseShadow)">
+          <use href="#rosePetalShape" transform="rotate(26.0) translate(0 -3) scale(1.22)"/>
+          <use href="#rosePetalShape" transform="rotate(86.0) translate(0 -3) scale(1.22)"/>
+          <use href="#rosePetalShape" transform="rotate(146.0) translate(0 -3) scale(1.22)"/>
+          <use href="#rosePetalShape" transform="rotate(206.0) translate(0 -3) scale(1.22)"/>
+          <use href="#rosePetalShape" transform="rotate(266.0) translate(0 -3) scale(1.22)"/>
+          <use href="#rosePetalShape" transform="rotate(326.0) translate(0 -3) scale(1.22)"/>
+        </g>
+        <g filter="url(#roseShadow)">
+          <use href="#rosePetalShape" transform="rotate(8.0) translate(0 -3) scale(.96)"/>
+          <use href="#rosePetalShape" transform="rotate(80.0) translate(0 -3) scale(.96)"/>
+          <use href="#rosePetalShape" transform="rotate(152.0) translate(0 -3) scale(.96)"/>
+          <use href="#rosePetalShape" transform="rotate(224.0) translate(0 -3) scale(.96)"/>
+          <use href="#rosePetalShape" transform="rotate(296.0) translate(0 -3) scale(.96)"/>
+        </g>
+        <g filter="url(#roseShadow)">
+          <use href="#rosePetalShape" transform="rotate(44.0) translate(0 -3) scale(.74)"/>
+          <use href="#rosePetalShape" transform="rotate(116.0) translate(0 -3) scale(.74)"/>
+          <use href="#rosePetalShape" transform="rotate(188.0) translate(0 -3) scale(.74)"/>
+          <use href="#rosePetalShape" transform="rotate(260.0) translate(0 -3) scale(.74)"/>
+          <use href="#rosePetalShape" transform="rotate(332.0) translate(0 -3) scale(.74)"/>
+        </g>
+        <g filter="url(#roseShadow)">
+          <use href="#rosePetalShape" transform="rotate(18.0) translate(0 -3) scale(.52)"/>
+          <use href="#rosePetalShape" transform="rotate(108.0) translate(0 -3) scale(.52)"/>
+          <use href="#rosePetalShape" transform="rotate(198.0) translate(0 -3) scale(.52)"/>
+          <use href="#rosePetalShape" transform="rotate(288.0) translate(0 -3) scale(.52)"/>
+        </g>
+        <g filter="url(#roseShadow)">
+          <use href="#rosePetalShape" transform="rotate(70.0) translate(0 -3) scale(.34)"/>
+          <use href="#rosePetalShape" transform="rotate(190.0) translate(0 -3) scale(.34)"/>
+          <use href="#rosePetalShape" transform="rotate(310.0) translate(0 -3) scale(.34)"/>
+        </g>
+        <path d="M-5 2C-8-6 2-10 6-4 9 2 2 8-4 5" fill="none" stroke="#B89C70" stroke-width="1.1" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <p class="envelope-scene__hint" id="env-hint">Touchez le sceau pour ouvrir</p>
 </div>
 
-<!-- Navigation -->
-<header class="nav" id="nav">
-  <a href="#accueil" class="nav__logo" aria-label="Retour en haut"><?= e($monogram) ?></a>
-  <nav aria-label="Navigation principale">
-    <ul class="nav__links" id="nav-links">
-      <li><a href="#invitation">Invitation</a></li>
-      <li><a href="#maries">Les mariés</a></li>
-      <li><a href="#histoire">Notre histoire</a></li>
-      <li><a href="#galerie">Galerie</a></li>
-      <li><a href="#details">Le jour J</a></li>
-      <li><a href="#faq">FAQ</a></li>
-      <li><a href="#rsvp" class="nav__cta">Confirmer</a></li>
-    </ul>
-  </nav>
-  <button class="nav__burger" id="burger" aria-expanded="false" aria-controls="nav-links" aria-label="Ouvrir le menu">
-    <span></span><span></span>
-  </button>
-</header>
+<!-- Monogramme : retour en haut + anneau de progression -->
+<a href="#accueil" class="mono-badge" id="mono-badge" aria-label="Retour en haut de la page">
+  <svg class="mono-badge__ring" viewBox="0 0 52 52" aria-hidden="true"><circle class="mono-badge__track" cx="26" cy="26" r="24"/><circle class="mono-badge__fill" cx="26" cy="26" r="24" pathLength="1"/></svg>
+  <span class="mono-badge__text"><?= e($monogram) ?></span>
+</a>
+
+<!-- Navigation : dock flottant en bas de l'écran -->
+<nav class="dock" id="dock" aria-label="Navigation principale">
+  <ul class="dock__list">
+    <li><a href="#invitation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h17v11h-17zM3.5 7l8.5 6.5L20.5 7"/></svg><span class="dock__label">Invitation</span></a></li>
+    <li><a href="#maries"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="14.5" r="5"/><circle cx="15" cy="14.5" r="5"/><path d="M10 4.5h4l1.2 1.6L12 8.5 8.8 6.1z"/></svg><span class="dock__label">Les mariés</span></a></li>
+    <li><a href="#histoire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5s-7-4.3-7-9.6A3.9 3.9 0 0 1 12 7.6a3.9 3.9 0 0 1 7 2.3c0 5.3-7 9.6-7 9.6z"/></svg><span class="dock__label">Histoire</span></a></li>
+    <li><a href="#galerie"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v13H4zM4 15.5l4.5-4.5 4 4 3-3 4.5 4.5"/><circle cx="15.5" cy="9.5" r="1.4"/></svg><span class="dock__label">Galerie</span></a></li>
+    <li><a href="#details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16v13H4zM4 10.5h16M8.5 4v4.5M15.5 4v4.5"/></svg><span class="dock__label">Le jour J</span></a></li>
+    <li><a href="#faq"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6M12 16.6v.1"/></svg><span class="dock__label">FAQ</span></a></li>
+    <li><a href="#rsvp" class="dock__cta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span class="dock__label">Confirmer</span></a></li>
+  </ul>
+  <span class="dock__indicator" id="dock-indicator" aria-hidden="true"></span>
+</nav>
 
 <main>
 <!-- 1. HÉRO -->
 <section class="hero" id="accueil" aria-labelledby="hero-title">
   <div class="hero__ambient" aria-hidden="true"></div>
+  <!-- Côtés de l'accueil (grand écran) : portraits en arche, initiales, texte qui défile -->
+  <?php foreach ([['left', $g, 'marie', 'Le marié'], ['right', $b, 'mariee', 'La mariée']] as [$side, $p, $img, $role]): ?>
+  <div class="hero__side hero__side--<?= $side ?>" aria-hidden="true">
+    <span class="hero__giant"><?= e(mb_substr($p['name'], 0, 1)) ?></span>
+    <div class="hero__marquee"><div class="hero__marquee-track">
+      <?php for ($k = 0; $k < 2; $k++): ?><span><?= e("$couple · $dateShort · " . cfg('city') . ' · ') ?><?= e("$couple · $dateShort · " . cfg('city') . ' · ') ?></span><?php endfor; ?>
+    </div></div>
+    <figure class="hero__portrait">
+      <span class="hero__frame"></span>
+      <div class="hero__arch"><?= picture($img, '', '240px', '', true, [480]) ?></div>
+      <figcaption><span class="hero__role"><?= e($role) ?></span><span class="hero__pname"><?= e($p['name']) ?></span></figcaption>
+    </figure>
+  </div>
+  <?php endforeach; ?>
   <div class="hero__card">
   <div class="hero__media" data-parallax="0.12">
     <picture>
@@ -162,11 +338,11 @@ $gallery = [
 
 <!-- 2. INVITATION -->
 <section class="section section--ivory" id="invitation" aria-labelledby="inv-title">
-  <div class="card-frame reveal">
-    <svg class="corner corner--tl" viewBox="0 0 60 60" aria-hidden="true"><path d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
-    <svg class="corner corner--tr" viewBox="0 0 60 60" aria-hidden="true"><path d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
-    <svg class="corner corner--bl" viewBox="0 0 60 60" aria-hidden="true"><path d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
-    <svg class="corner corner--br" viewBox="0 0 60 60" aria-hidden="true"><path d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
+  <div class="card-frame reveal stagger">
+    <svg class="corner corner--tl" viewBox="0 0 60 60" aria-hidden="true"><path pathLength="1" d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
+    <svg class="corner corner--tr" viewBox="0 0 60 60" aria-hidden="true"><path pathLength="1" d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
+    <svg class="corner corner--bl" viewBox="0 0 60 60" aria-hidden="true"><path pathLength="1" d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
+    <svg class="corner corner--br" viewBox="0 0 60 60" aria-hidden="true"><path pathLength="1" d="M2 58V20Q2 2 20 2h38M10 58V24Q10 10 24 10h34"/><circle cx="20" cy="20" r="2.5"/></svg>
 
     <p class="eyebrow">Invitation</p>
     <p class="inv__lead">Avec la bénédiction de leurs familles</p>
@@ -263,7 +439,7 @@ $gallery = [
   <div class="events">
     <?php foreach ([[$cer, 'M12 3v4M10 5h4M6 21V11l6-4 6 4v10M6 21h12M10 21v-4a2 2 0 0 1 4 0v4'], [$rec, 'M8 3v6a4 4 0 0 0 8 0V3M12 13v8M8 21h8M16 3v6']] as $k => [$ev, $icon]): ?>
     <article class="event reveal" style="--d:<?= $k * 120 ?>ms">
-      <svg class="event__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="<?= $icon ?>"/></svg>
+      <svg class="event__icon" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="<?= $icon ?>"/></svg>
       <h3 class="event__title"><?= e($ev['title']) ?></h3>
       <p class="event__date"><?= e(ucfirst($dateLong)) ?> · <strong><?= e($ev['time']) ?></strong></p>
       <p class="event__place"><?= e($ev['place']) ?></p>
@@ -290,7 +466,7 @@ $gallery = [
     </div>
     <div class="program reveal" style="--d:120ms">
       <p class="eyebrow">Programme de la journée</p>
-      <ol class="program__list">
+      <ol class="program__list stagger">
         <?php foreach (cfg('program') as [$t, $title, $desc]): ?>
         <li><span class="program__time"><?= e($t) ?></span><div><strong><?= e($title) ?></strong><span><?= e($desc) ?></span></div></li>
         <?php endforeach; ?>
@@ -301,7 +477,7 @@ $gallery = [
 
 <!-- 7. COMPTE À REBOURS -->
 <section class="countdown" id="compte" aria-labelledby="cd-title">
-  <div class="countdown__inner reveal">
+  <div class="countdown__inner reveal stagger-clock">
     <p class="eyebrow eyebrow--light">Le grand jour approche</p>
     <h2 class="countdown__title" id="cd-title">Plus que…</h2>
     <div class="clock" id="clock" data-target="<?= e($startIso) ?>" role="timer" aria-live="off">
@@ -400,7 +576,7 @@ $gallery = [
 <!-- 10. CADEAUX -->
 <section class="section gifts" id="cadeaux" aria-labelledby="gift-title">
   <div class="gifts__card reveal">
-    <svg class="gifts__icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M8 20h32v22H8zM5 13h38v7H5zM24 13v29M24 13c-3-6-11-8-11-2 0 2 3 2 11 2zm0 0c3-6 11-8 11-2 0 2-3 2-11 2z"/></svg>
+    <svg class="gifts__icon" viewBox="0 0 48 48" aria-hidden="true"><path pathLength="1" d="M8 20h32v22H8zM5 13h38v7H5zM24 13v29M24 13c-3-6-11-8-11-2 0 2 3 2 11 2zm0 0c3-6 11-8 11-2 0 2-3 2-11 2z"/></svg>
     <p class="eyebrow">Liste de mariage</p>
     <h2 class="section__title" id="gift-title">Un geste <em>de cœur</em></h2>
     <p class="gifts__text"><?= e($gifts['text']) ?></p>
@@ -439,7 +615,7 @@ $gallery = [
 </main>
 
 <!-- 12. PIED DE PAGE -->
-<footer class="footer">
+<footer class="footer reveal stagger">
   <p class="footer__mono"><?= e($monogram) ?></p>
   <p class="footer__names script"><?= e($g['name']) ?> <span class="amp">&amp;</span> <?= e($b['name']) ?></p>
   <p class="footer__date"><?= e($dateShort) ?> · <?= e(cfg('city')) ?></p>
