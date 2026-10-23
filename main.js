@@ -12,52 +12,106 @@
     ? (ENDPOINT ? { rsvp: ENDPOINT, guests: ENDPOINT + (ENDPOINT.includes('?') ? '&' : '?') + 'action=guests' } : null)
     : { rsvp: 'api/rsvp.php', guests: 'api/guests.php' };
 
-  /* ── Rideau d'ouverture ─────────────────────────────── */
-  const intro = $('#intro');
-  if (intro) {
-    const t0 = performance.now();
-    const close = () => setTimeout(() => intro.classList.add('is-done'), Math.max(0, 1500 - (performance.now() - t0)));
-    if (reduced) intro.classList.add('is-done');
-    else if (document.readyState === 'complete') close();
-    else window.addEventListener('load', close, { once: true });
-    setTimeout(() => intro.classList.add('is-done'), 3200); // filet de sécurité
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduced;
+
+  /* ── Enveloppe d'ouverture ──────────────────────────── */
+  const scene = $('#envelope');
+  const unlock = () => document.documentElement.classList.remove('env-lock');
+  if (!scene) unlock();
+  else {
+    const env = $('#env-open');
+    const wrap = $('#env-wrap');
+    let opened = false;
+
+    // Pétales ivoire qui tombent doucement
+    const petals = $('#env-petals');
+    if (petals && !reduced) {
+      const n = window.innerWidth < 700 ? 12 : 22;
+      for (let i = 0; i < n; i++) {
+        const p = document.createElement('span');
+        p.style.cssText = `--x:${rnd(0, 100)}%;--s:${rnd(9, 20).toFixed(1)}px;--t:${rnd(9, 17).toFixed(1)}s;--dl:${-rnd(0, 17).toFixed(1)}s;--dx:${rnd(-120, 120).toFixed(0)}px`;
+        petals.appendChild(p);
+      }
+    }
+
+    // L'enveloppe s'incline en suivant le pointeur
+    const tilt = (x, y) => { env.style.setProperty('--rx', `${(x * 16).toFixed(2)}deg`); env.style.setProperty('--ry', `${(-y * 12).toFixed(2)}deg`); };
+    if (finePointer) scene.addEventListener('pointermove', (e) => { if (!opened) tilt(e.clientX / window.innerWidth - 0.5, e.clientY / window.innerHeight - 0.5); });
+
+    // Étincelles dorées quand le sceau se brise
+    const sparks = () => {
+      for (let i = 0; i < 22; i++) {
+        const s = document.createElement('span');
+        const a = rnd(0, Math.PI * 2), d = rnd(50, 170);
+        s.className = 'env-spark';
+        s.style.cssText = `--s:${rnd(3, 8).toFixed(1)}px;--dx:${(Math.cos(a) * d).toFixed(0)}px;--dy:${(Math.sin(a) * d).toFixed(0)}px;animation-delay:${rnd(0, 0.15).toFixed(2)}s`;
+        wrap.appendChild(s);
+        s.addEventListener('animationend', () => s.remove());
+      }
+    };
+
+    const open = () => {
+      if (opened) return;
+      opened = true;
+      tilt(0, 0);
+      scene.classList.add('is-opening');
+      if (!reduced) sparks();
+      const [reveal, leave, end] = reduced ? [0, 50, 400] : [2400, 3600, 5000];
+      setTimeout(() => scene.classList.add('is-revealing'), reveal);
+      setTimeout(() => { scene.classList.add('is-leaving'); unlock(); requestFrame(); }, leave);
+      setTimeout(() => { scene.hidden = true; }, end);
+    };
+    scene.addEventListener('click', open);
+    document.addEventListener('keydown', (e) => {
+      if (opened || !['Enter', ' ', 'Escape'].includes(e.key)) return;
+      e.preventDefault();
+      open();
+    });
   }
 
-  /* ── Navigation ─────────────────────────────────────── */
-  const nav = $('#nav');
-  const burger = $('#burger');
-  $$('.nav__links li').forEach((li, i) => li.firstElementChild.style.setProperty('--n', i));
+  /* ── Navigation : dock flottant ─────────────────────── */
+  const dock = $('#dock');
+  const dockList = $('.dock__list', dock);
+  const indicator = $('#dock-indicator');
+  const links = new Map($$('a[href^="#"]', dock).map((a) => [a.getAttribute('href').slice(1), a]));
+  // Sections sans bouton dans le dock : on allume la rubrique la plus proche
+  const alias = { compte: 'details', invites: 'rsvp', cadeaux: 'rsvp' };
+  let currentLink = null;
 
-  const setMenu = (open) => {
-    nav.classList.toggle('is-open', open);
-    burger.setAttribute('aria-expanded', String(open));
-    burger.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
-    document.body.style.overflow = open ? 'hidden' : '';
+  // La pastille dorée glisse sous la rubrique active
+  const placeIndicator = () => {
+    if (!currentLink) { indicator.classList.remove('is-on'); return; }
+    const first = !indicator.classList.contains('is-on');
+    if (first) indicator.style.transition = 'opacity .4s';
+    indicator.style.setProperty('--x', `${dockList.offsetLeft + currentLink.offsetLeft}px`);
+    indicator.style.setProperty('--w', `${currentLink.offsetWidth}px`);
+    indicator.classList.add('is-on');
+    if (first) requestAnimationFrame(() => requestAnimationFrame(() => { indicator.style.transition = ''; }));
   };
-  burger.addEventListener('click', () => setMenu(!nav.classList.contains('is-open')));
-  $$('.nav__links a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && nav.classList.contains('is-open')) { setMenu(false); burger.focus(); } });
-
-  let lastY = window.scrollY;
-  const heroH = () => $('#accueil').offsetHeight;
-  const onScrollNav = () => {
-    const y = window.scrollY;
-    nav.classList.toggle('is-solid', y > 60);
-    if (!nav.classList.contains('is-open')) nav.classList.toggle('is-hidden', y > heroH() && y > lastY + 4);
-    if (y < lastY - 4 || y < heroH()) nav.classList.remove('is-hidden');
-    lastY = y;
+  const setCurrent = (id) => {
+    const a = links.get(alias[id] || id) || null;
+    if (a === currentLink) return;
+    links.forEach((l) => { l.classList.remove('is-current'); l.removeAttribute('aria-current'); });
+    if (a) { a.classList.add('is-current'); a.setAttribute('aria-current', 'true'); }
+    currentLink = a;
+    placeIndicator();
   };
+  // Sur mobile, le nom de la rubrique se déplie : on suit sa largeur en continu
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(() => placeIndicator());
+    links.forEach((a) => ro.observe(a));
+  } else window.addEventListener('resize', placeIndicator);
+  links.forEach((a, id) => a.addEventListener('click', () => setCurrent(id)));
 
-  // Lien actif selon la section visible
-  const links = new Map($$('.nav__links a[href^="#"]').map((a) => [a.getAttribute('href').slice(1), a]));
   const spy = new IntersectionObserver((entries) => {
-    entries.forEach((en) => {
-      if (!en.isIntersecting) return;
-      links.forEach((a) => a.classList.remove('is-current'));
-      links.get(en.target.id)?.classList.add('is-current');
-    });
+    entries.forEach((en) => { if (en.isIntersecting) setCurrent(en.target.id); });
   }, { rootMargin: '-45% 0px -50% 0px' });
   $$('main section[id]').forEach((s) => spy.observe(s));
+
+  // Le dock s'efface pendant la saisie du formulaire (clavier mobile)
+  document.addEventListener('focusin', (e) => dock.classList.toggle('is-tucked', !!e.target.closest('input, textarea')));
+  document.addEventListener('focusout', () => dock.classList.remove('is-tucked'));
 
   /* ── Révélations au défilement ──────────────────────── */
   const revealer = new IntersectionObserver((entries) => {
@@ -66,6 +120,85 @@
     });
   }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
   $$('.reveal').forEach((el) => (reduced ? el.classList.add('is-in') : revealer.observe(el)));
+
+  /* ── Motion design sur tout le site ─────────────────── */
+  // Délais en cascade pour les contenus qui apparaissent l'un après l'autre
+  $$('.stagger').forEach((el) => [...el.children].filter((c) => !c.classList.contains('corner')).forEach((c, k) => c.style.setProperty('--k', k)));
+  $$('.stagger-clock .clock__unit').forEach((u, k) => u.style.setProperty('--k', k));
+
+  // Anneau de progression autour du monogramme (mis à jour dans la boucle de défilement)
+  const progress = $('#mono-badge');
+
+  if (finePointer) {
+    // Halo doré qui suit la souris avec un léger retard
+    const glow = document.createElement('div');
+    glow.className = 'cursor-glow';
+    glow.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(glow);
+    let tx = 0, ty = 0, gx = 0, gy = 0, running = false;
+    const follow = () => {
+      gx += (tx - gx) * 0.12; gy += (ty - gy) * 0.12;
+      glow.style.setProperty('--cx', `${gx.toFixed(1)}px`);
+      glow.style.setProperty('--cy', `${gy.toFixed(1)}px`);
+      running = Math.abs(tx - gx) + Math.abs(ty - gy) > 0.5;
+      if (running) requestAnimationFrame(follow);
+    };
+    window.addEventListener('pointermove', (e) => {
+      if (!glow.classList.contains('is-on')) { gx = tx = e.clientX; gy = ty = e.clientY; glow.classList.add('is-on'); }
+      tx = e.clientX; ty = e.clientY;
+      if (!running) { running = true; requestAnimationFrame(follow); }
+    }, { passive: true });
+    document.documentElement.addEventListener('pointerleave', () => glow.classList.remove('is-on'));
+
+    // Héro : le texte, les portraits et les initiales suivent la souris, chacun à sa profondeur
+    const hero = $('#accueil');
+    const heroText = $('.hero__text');
+    hero.addEventListener('pointermove', (e) => {
+      const r = hero.getBoundingClientRect();
+      const mx = (e.clientX - r.left) / r.width - 0.5, my = (e.clientY - r.top) / r.height - 0.5;
+      heroText.style.setProperty('--hx', `${(mx * -18).toFixed(1)}px`);
+      heroText.style.setProperty('--hy', `${(my * -12).toFixed(1)}px`);
+      hero.style.setProperty('--mx', mx.toFixed(3));
+      hero.style.setProperty('--my', my.toFixed(3));
+    });
+    hero.addEventListener('pointerleave', () => {
+      heroText.style.removeProperty('--hx'); heroText.style.removeProperty('--hy');
+      hero.style.removeProperty('--mx'); hero.style.removeProperty('--my');
+    });
+
+    // Cartes et photos : inclinaison 3D avec reflet
+    $$('.event, .card-frame, .person__photo, .masonry__btn').forEach((el) => {
+      const max = el.classList.contains('card-frame') ? 3 : 7;
+      const glare = document.createElement('span');
+      glare.className = 'tilt-glare';
+      el.appendChild(glare);
+      el.addEventListener('pointermove', (e) => {
+        if (el.closest('.reveal:not(.is-in)')) return; // attendre la fin de l'apparition
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        el.classList.add('is-tilting');
+        el.style.transition = 'transform .25s ease-out, border-color .6s, box-shadow .6s';
+        el.style.transform = `perspective(1000px) rotateX(${((0.5 - y) * max).toFixed(2)}deg) rotateY(${((x - 0.5) * max).toFixed(2)}deg) translateY(-4px)`;
+        el.style.setProperty('--gx', `${(x * 100).toFixed(1)}%`);
+        el.style.setProperty('--gy', `${(y * 100).toFixed(1)}%`);
+      });
+      el.addEventListener('pointerleave', () => {
+        el.classList.remove('is-tilting');
+        el.style.transition = 'transform .9s cubic-bezier(.16,1,.3,1), border-color .6s, box-shadow .6s';
+        el.style.transform = '';
+        setTimeout(() => { if (!el.classList.contains('is-tilting')) el.style.transition = ''; }, 900);
+      });
+    });
+
+    // Boutons aimantés : ils glissent vers la souris
+    $$('.btn').forEach((b) => {
+      b.addEventListener('pointermove', (e) => {
+        const r = b.getBoundingClientRect();
+        b.style.translate = `${((e.clientX - r.left - r.width / 2) * 0.18).toFixed(1)}px ${((e.clientY - r.top - r.height / 2) * 0.3).toFixed(1)}px`;
+      });
+      b.addEventListener('pointerleave', () => { b.style.translate = ''; });
+    });
+  }
 
   /* ── Parallaxe + timeline (une seule boucle rAF) ────── */
   const parallax = $$('[data-parallax]');
@@ -88,7 +221,6 @@
 
   const frame = () => {
     ticking = false;
-    onScrollNav();
     const vh = window.innerHeight;
     if (!reduced) {
       parallax.forEach((el) => {
@@ -108,6 +240,8 @@
       const p = Math.min(1, Math.max(0, (vh * 0.6 - r.top) / r.height));
       fill.style.setProperty('--p', p.toFixed(3));
     }
+    const maxY = document.documentElement.scrollHeight - vh;
+    progress.style.setProperty('--sp', (maxY > 0 ? window.scrollY / maxY : 0).toFixed(4));
   };
   const requestFrame = () => { if (!ticking) { ticking = true; requestAnimationFrame(frame); } };
   window.addEventListener('scroll', requestFrame, { passive: true });
