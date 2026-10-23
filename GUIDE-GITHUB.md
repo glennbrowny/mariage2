@@ -1,11 +1,11 @@
 # Publier l'invitation sur GitHub
 
-Le dossier **`github/`** contient la version du site prête à publier :
-24 fichiers, aucun sous-dossier. L'affichage est le même qu'en local.
+Le dossier **`C:\wamp64\www\mariage3`** contient le site prêt à publier : HTML, CSS, JS et images, sans sous-dossier.
+Ce dossier-ci (`mariage3-source`) contient la version PHP, les outils et ce guide. Il ne se publie pas.
 
 ## 1. Mettre le site en ligne (GitHub Pages)
 1. Sur github.com, cliquez sur **New repository**. Donnez-lui un nom, par exemple `mariage`, et choisissez **Public**.
-2. Cliquez sur **uploading an existing file**. Ouvrez le dossier `github/`, sélectionnez **tous les fichiers** (Ctrl+A) et glissez-les dans la page.
+2. Cliquez sur **uploading an existing file**. Ouvrez le dossier `mariage3`, sélectionnez **tous les fichiers** (Ctrl+A) et glissez-les dans la page.
    Cliquez ensuite sur **Commit changes**.
 3. Ouvrez **Settings → Pages**. Dans « Source », choisissez **Deploy from a branch**, puis la branche `main` et le dossier `/ (root)`. Enregistrez.
 4. Une à deux minutes plus tard, le site est en ligne à l'adresse `https://VOTRE-PSEUDO.github.io/mariage/`.
@@ -16,7 +16,7 @@ C'est donc une feuille Google qui s'en charge.
 
 1. Sur drive.google.com, créez une **feuille Google Sheets** vide, par exemple « RSVP Mariage ».
 2. Dans cette feuille, ouvrez le menu **Extensions → Apps Script**. Effacez le code présent et collez tout le contenu du fichier
-   **`google-apps-script.gs`** (à la racine du projet, hors du dossier `github/`).
+   **`google-apps-script.gs`** (dans ce dossier `mariage3-source`).
 3. En haut du script, modifiez :
    - `ADMIN_KEY` : le mot de passe de votre espace mariés ;
    - `NOTIFY_EMAIL` : votre adresse e-mail, pour recevoir un e-mail à chaque réponse.
@@ -43,7 +43,7 @@ Vous y trouvez les statistiques, les régimes alimentaires, les messages, la rec
 ## 4. Modifier le site plus tard
 - **Petit texte :** modifiez directement `index.html` sur GitHub (icône crayon).
 - **Gros changements** (noms, date, lieux…) : modifiez `config.php`, puis lancez
-  `php tools/build-static.php` dans le dossier du projet. Le dossier `github/` est régénéré. Envoyez à nouveau les fichiers modifiés sur GitHub.
+  `php tools/build-static.php` dans le dossier du projet. Le dossier `mariage3` est régénéré. Envoyez à nouveau les fichiers modifiés sur GitHub.
   Votre `config.js` n'est jamais écrasé.
 - **Aperçu WhatsApp :** une fois l'adresse du site connue, renseignez `site_url` dans `config.php`, régénérez et renvoyez `index.html`.
   Le lien partagé affichera alors l'image de la carte.
