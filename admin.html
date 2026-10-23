@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Espace mariés — Daniel &amp; Grâce</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0B0A09; --panel:#151311; --gold:#C9A46A; --gold-text:#D8BD8A; --text:#D3C8B8; --heading:#F6EFE2; --muted:#A99D8C; --line:rgba(216,189,138,.25); }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:Jost, system-ui, sans-serif; font-weight:300; background:var(--bg); color:var(--text); }
+  h1, h2 { font-family:"Cormorant Garamond", serif; font-weight:400; margin:0; color:var(--heading); }
+  .wrap { max-width:1200px; margin:0 auto; padding:24px 16px 80px; }
+  .top { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-bottom:28px; }
+  .top h1 { font-size:2rem; } .top h1 em { color:var(--gold-text); }
+  .btn { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 16px; border:1px solid var(--gold); background:transparent; font:inherit; font-size:.75rem; letter-spacing:.15em; text-transform:uppercase; text-decoration:none; cursor:pointer; color:var(--heading); }
+  .btn--gold { background:var(--gold); color:#111; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin-bottom:32px; }
+  .stat { background:var(--panel); border:1px solid var(--line); padding:18px; }
+  .stat b { display:block; font-family:"Cormorant Garamond", serif; font-size:2.6rem; font-weight:400; line-height:1; color:var(--gold-text); }
+  .stat span { font-size:.72rem; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); }
+  .panel { background:var(--panel); border:1px solid var(--line); padding:20px; margin-bottom:24px; }
+  .panel h2 { font-size:1.6rem; margin-bottom:12px; }
+  .tools { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .tools input, .tools select { min-height:40px; padding:0 12px; border:1px solid var(--line); font:inherit; background:#0F0E0C; color:var(--heading); }
+  .tools input { flex:1; min-width:200px; }
+  .table-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:.9rem; }
+  th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-weight:500; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+  td b { color:var(--heading); font-weight:500; }
+  tr.is-hidden td { opacity:.45; }
+  .pill { display:inline-block; padding:2px 10px; border-radius:99px; font-size:.75rem; white-space:nowrap; }
+  .yes { background:rgba(111,211,154,.15); color:#8FE0B0; } .no { background:rgba(238,149,128,.15); color:#EE9580; }
+  .msg { max-width:280px; font-style:italic; color:var(--muted); }
+  ul.list { margin:0; padding-left:18px; } ul.list li { margin-bottom:6px; }
+  .login { max-width:380px; margin:12vh auto; background:var(--panel); border:1px solid var(--line); padding:40px 28px; text-align:center; }
+  .login input { width:100%; min-height:48px; padding:0 14px; border:1px solid var(--line); font:inherit; margin:18px 0 12px; background:#0F0E0C; color:var(--heading); }
+  .err { color:#EE9580; font-size:.9rem; }
+  .note { font-size:.85rem; color:var(--muted); }
+  .grid2 { display:grid; gap:24px; } @media (min-width:860px) { .grid2 { grid-template-columns:1fr 1fr; } }
+  .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); }
+</style>
+</head>
+<body>
+  <form class="login" id="login">
+    <h1>Espace mariés</h1>
+    <p style="color:var(--muted)">Daniel &amp; Grâce</p>
+    <label for="pw" class="sr">Mot de passe</label>
+    <input id="pw" type="password" placeholder="Mot de passe" autocomplete="current-password" required autofocus>
+    <p class="err" id="err" role="alert"></p>
+    <button class="btn btn--gold" type="submit" style="width:100%">Se connecter</button>
+  </form>
+
+  <div class="wrap" id="app" hidden>
+    <div class="top">
+      <h1>Espace mariés — <em>Daniel &amp; Grâce</em></h1>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <a class="btn" href="./" target="_blank">Voir le site</a>
+        <button class="btn" id="csv" type="button">Exporter CSV</button>
+        <button class="btn" id="refresh" type="button">Actualiser</button>
+        <button class="btn btn--gold" id="logout" type="button">Déconnexion</button>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="grid2">
+      <div class="panel"><h2>Régimes alimentaires & allergies</h2><div id="diets"></div></div>
+      <div class="panel"><h2>Messages des invités</h2><div id="msgs"></div></div>
+    </div>
+    <div class="panel">
+      <h2 id="count-title">Toutes les réponses</h2>
+      <p class="note">Pour masquer une réponse de la liste publique, écrivez « Oui » dans la colonne « Masqué » de la feuille Google Sheets. Pour la supprimer, supprimez sa ligne.</p>
+      <div class="tools">
+        <input type="search" id="q" placeholder="Rechercher un nom, un contact…" aria-label="Rechercher">
+        <select id="f" aria-label="Filtrer"><option value="">Toutes</option><option value="yes">Présents</option><option value="no">Absents</option></select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Nom</th><th>Contact</th><th>Présence</th><th>Accomp.</th><th>Régime</th><th>Message</th><th>Reçu le</th><th>Liste publique</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+<script src="config.js"></script>
+<script>
+(() => {
+  const ENDPOINT = String(window.WEDDING_ENDPOINT || '').trim();
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let rows = [];
+  let key = '';
+  try { key = sessionStorage.getItem('admin-key') || ''; } catch (_) {}
+
+  async function load() {
+    if (!ENDPOINT) { $('err').textContent = 'Le service n\'est pas encore configuré (config.js).'; return; }
+    const url = ENDPOINT + (ENDPOINT.includes('?') ? '&' : '?') + 'action=admin&key=' + encodeURIComponent(key);
+    try {
+      const data = await (await fetch(url, { cache: 'no-store' })).json();
+      if (!data.ok) throw new Error(data.error || 'Erreur');
+      try { sessionStorage.setItem('admin-key', key); } catch (_) {}
+      rows = data.rows.sort((a, b) => new Date(b.updated) - new Date(a.updated));
+      $('login').hidden = true; $('app').hidden = false;
+      render();
+    } catch (e) {
+      $('login').hidden = false; $('app').hidden = true;
+      $('err').textContent = e.message === 'Erreur' ? 'Connexion impossible.' : e.message;
+    }
+  }
+
+  function render() {
+    const yes = rows.filter((r) => r.attending);
+    const people = yes.reduce((n, r) => n + 1 + r.companions, 0);
+    const diets = yes.filter((r) => String(r.diet || '').trim());
+    const msgs = rows.filter((r) => String(r.message || '').trim());
+    $('stats').innerHTML = [
+      [people, 'Personnes attendues'], [yes.length, 'Réponses « oui »'], [rows.length - yes.length, 'Réponses « non »'],
+      [people - yes.length, 'Accompagnants'], [diets.length, 'Régimes / allergies'],
+    ].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
+    $('diets').innerHTML = diets.length ? '<ul class="list">' + diets.map((r) => `<li><b>${esc(r.name)}</b> (${1 + r.companions} pers.) — ${esc(r.diet)}</li>`).join('') + '</ul>' : '<p class="note">Aucun pour l\'instant.</p>';
+    $('msgs').innerHTML = msgs.length ? '<ul class="list">' + msgs.map((r) => `<li><b>${esc(r.name)}</b> : <i>${esc(r.message)}</i></li>`).join('') + '</ul>' : '<p class="note">Aucun message pour l\'instant.</p>';
+    $('count-title').textContent = `Toutes les réponses (${rows.length})`;
+    const q = $('q').value.toLowerCase(), f = $('f').value;
+    const list = rows.filter((r) => (!f || (f === 'yes') === r.attending) && JSON.stringify(r).toLowerCase().includes(q));
+    $('rows').innerHTML = list.length ? list.map((r) => `<tr class="${r.hidden ? 'is-hidden' : ''}">
+      <td><b>${esc(r.name)}</b></td><td>${esc(r.contact)}</td>
+      <td><span class="pill ${r.attending ? 'yes' : 'no'}">${r.attending ? 'Présent' : 'Absent'}</span></td>
+      <td>${r.companions}</td><td>${esc(r.diet || '—')}</td><td class="msg">${esc(r.message || '—')}</td>
+      <td style="white-space:nowrap">${r.updated ? new Date(r.updated).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—'}</td>
+      <td>${!r.isPublic ? 'Refusé par l\'invité' : r.hidden ? 'Masqué' : 'Visible'}</td></tr>`).join('')
+      : '<tr><td colspan="8" class="note">Aucune réponse.</td></tr>';
+  }
+
+  $('login').addEventListener('submit', (e) => { e.preventDefault(); key = $('pw').value; $('err').textContent = ''; load(); });
+  $('logout').addEventListener('click', () => { try { sessionStorage.removeItem('admin-key'); } catch (_) {} location.reload(); });
+  $('refresh').addEventListener('click', load);
+  $('q').addEventListener('input', render);
+  $('f').addEventListener('change', render);
+  $('csv').addEventListener('click', () => {
+    const cell = (v) => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const head = ['Nom', 'Contact', 'Présence', 'Accompagnants', 'Total personnes', 'Régime / allergies', 'Message', 'Public', 'Masqué', 'Modifié le'];
+    const lines = rows.map((r) => [r.name, r.contact, r.attending ? 'Oui' : 'Non', r.companions, r.attending ? 1 + r.companions : 0,
+      r.diet, r.message, r.isPublic ? 'Oui' : 'Non', r.hidden ? 'Oui' : 'Non', r.updated].map(cell).join(';'));
+    const blob = new Blob(['﻿' + [head.map(cell).join(';'), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'rsvp-' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
+  });
+
+  if (key) load();
+})();
+</script>
+</body>
+</html>

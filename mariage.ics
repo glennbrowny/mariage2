@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Invitation//Mariage//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:mariage-979d0a92d004215ed3643c9f8b9b3a78@invitation
+DTSTAMP:20261023T115253Z
+DTSTART:20270612T130000Z
+DTEND:20270613T010000Z
+SUMMARY:Mariage de Daniel & Grâce
+LOCATION:Église Saint-Joseph\, Boulevard de la Liberté\, Akwa — Douala
+DESCRIPTION:Cérémonie 14h00 — Église Saint-Joseph\, Boulevard de la Liberté\, Akwa — Douala\nRéception 19h00 — Domaine Les Jardins d'Ivoire\, Route de Japoma\, Douala
+BEGIN:VALARM
+TRIGGER:-P1D
+ACTION:DISPLAY
+DESCRIPTION:Demain : mariage de Daniel & Grâce
+END:VALARM
+END:VEVENT
+END:VCALENDAR
